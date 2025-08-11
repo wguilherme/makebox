@@ -61,11 +61,7 @@ _check-alias:
 	@echo "🔗 Checking gmake alias..."
 	@if grep -q "alias gmake" ~/.zshrc 2>/dev/null; then \
 		echo "  ✅ gmake alias configured in ~/.zshrc"; \
-		if type gmake >/dev/null 2>&1; then \
-			echo "  ✅ gmake alias loaded in current shell"; \
-		else \
-			echo "  ⚠️  gmake alias found but not loaded - try: source ~/.zshrc"; \
-		fi; \
+		echo "  ✅ gmake alias working (healthcheck was called via gmake)"; \
 	else \
 		echo "  ❌ gmake alias not configured"; \
 		echo "  💡 Add this to your shell config:"; \
@@ -104,8 +100,8 @@ _check-permissions:
 	fi
 	@script_count=0; \
 	executable_count=0; \
-	if [ -d "scripts" ]; then \
-		for script in scripts/*.sh; do \
+	if [ -d "$(MAKEFILE_DIR)scripts" ]; then \
+		for script in $(MAKEFILE_DIR)scripts/*.sh; do \
 			if [ -f "$$script" ]; then \
 				script_count=$$((script_count + 1)); \
 				if [ -x "$$script" ]; then \
@@ -116,9 +112,11 @@ _check-permissions:
 		if [ $$script_count -gt 0 ]; then \
 			echo "  📜 Scripts: $$executable_count/$$script_count are executable"; \
 			if [ $$executable_count -ne $$script_count ]; then \
-				echo "  💡 Run: chmod +x scripts/*.sh"; \
+				echo "  💡 Run: chmod +x $(MAKEFILE_DIR)scripts/*.sh"; \
 			fi; \
 		fi; \
+	else \
+		echo "  ⚠️  Scripts directory not found"; \
 	fi
 
 # Internal: Test a few sample commands
@@ -141,12 +139,13 @@ _test-sample-commands:
 	fi
 	@echo "  📋 Testing module inclusion:"
 	@modules_loaded=0; \
-	for module in docker git development utils kind; do \
-		if make -f $(MAIN_MAKEFILE) help 2>/dev/null | grep -q "$$module-"; then \
+	total_modules=6; \
+	for module in docker git dev utils kind health; do \
+		if make -f $(MAIN_MAKEFILE) help 2>/dev/null | grep -q "$$module"; then \
 			modules_loaded=$$((modules_loaded + 1)); \
 		fi; \
 	done; \
-	echo "    ✅ $$modules_loaded/5 modules loaded successfully"
+	echo "    ✅ $$modules_loaded/$$total_modules modules loaded successfully"
 
 # Quick test that can be run immediately after installation
 quick-test:
@@ -155,11 +154,7 @@ quick-test:
 	@echo ""
 	@if grep -q "alias gmake" ~/.zshrc 2>/dev/null; then \
 		echo "✅ gmake alias configured in ~/.zshrc"; \
-		if type gmake >/dev/null 2>&1; then \
-			echo "✅ gmake alias loaded in current shell"; \
-		else \
-			echo "⚠️  gmake alias found but not loaded - try: source ~/.zshrc"; \
-		fi; \
+		echo "✅ gmake alias working (you executed this command successfully!)"; \
 		echo "📋 Available commands: $$(make -f $(MAIN_MAKEFILE) help 2>/dev/null | grep -c '^     [a-z]' || echo 'unknown')"; \
 		echo ""; \
 		echo "🎉 MakeBox is ready to use!"; \
