@@ -30,9 +30,6 @@ help:
 	@echo "  📦 MakeBox - Global Makefiles Toolkit"
 	@echo "  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 	@echo ""
-	@$(MAKE) -f $(MAIN_MAKEFILE) _show-docker-commands 2>/dev/null || true
-	@$(MAKE) -f $(MAIN_MAKEFILE) _show-git-commands 2>/dev/null || true  
-	@$(MAKE) -f $(MAIN_MAKEFILE) _show-dev-commands 2>/dev/null || true
 	@$(MAKE) -f $(MAIN_MAKEFILE) _show-utils-commands 2>/dev/null || true
 	@$(MAKE) -f $(MAIN_MAKEFILE) _show-kind-commands 2>/dev/null || true
 	@$(MAKE) -f $(MAIN_MAKEFILE) _show-health-commands 2>/dev/null || true

@@ -1,5 +1,5 @@
 # General utility commands
-.PHONY: clean-ds clean-node clean-python flush-dns backup-dotfiles system-info network-info _show-utils-commands
+.PHONY: clean-ds clean-node clean-python flush-dns backup-dotfiles system-info network-info check-port utils-health _show-utils-commands
 
 # Help section for utility commands
 _show-utils-commands:
@@ -13,6 +13,7 @@ _show-utils-commands:
 	@echo "     network-info        Show network information and connectivity"
 	@echo "     find-large          Find large files and directories"
 	@echo "     cleanup-suggestions Disk space cleanup suggestions"
+	@echo "     check-port          Check what process is using a specific port"
 	@echo ""
 
 # Remove .DS_Store files recursively (macOS)
@@ -99,4 +100,24 @@ cleanup-suggestions:
 	@echo "🐍 pip cache: $$(du -sh ~/Library/Caches/pip 2>/dev/null | cut -f1 || echo '0B')"
 	@echo "🍺 Homebrew cache: $$(du -sh ~/Library/Caches/Homebrew 2>/dev/null | cut -f1 || echo '0B')"
 	@echo "🗑️  Trash: $$(du -sh ~/.Trash 2>/dev/null | cut -f1 || echo '0B')"
-	@echo "\nRun 'gmake dev-clean-cache' to clean development caches"
+	@echo "\nRun various clean commands to free up space"
+
+# Check what process is using a specific port
+check-port:
+	@if [ -z "$(PORT)" ]; then \
+		echo "❌ Please specify a port number:"; \
+		echo "   gmake check-port PORT=8080"; \
+		echo "   gmake check-port PORT=3000"; \
+		exit 1; \
+	fi
+	@echo "🔌 Checking port $(PORT)..."
+	@if lsof -i :$(PORT) >/dev/null 2>&1; then \
+		echo "📋 Processes using port $(PORT):"; \
+		lsof -i :$(PORT); \
+	else \
+		echo "✅ Port $(PORT) is free (no processes found)"; \
+	fi
+
+# Health check for utils module
+utils-health:
+	@echo "utils-module-ok"

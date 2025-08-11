@@ -1,5 +1,5 @@
 # Kind (Kubernetes in Docker) commands
-.PHONY: kind-create kind-delete kind-list kind-export-kubeconfig kind-load-image kind-status _show-kind-commands
+.PHONY: kind-create kind-delete kind-list kind-export-kubeconfig kind-load-image kind-status kind-health _show-kind-commands
 
 # Help section for kind commands
 _show-kind-commands:
@@ -124,3 +124,7 @@ kind-create-with-config:
 	@echo "🚀 Creating kind cluster: $(CLUSTER_NAME) with config: $(CONFIG_FILE)"
 	@kind create cluster --name $(CLUSTER_NAME) --config $(CONFIG_FILE)
 	@echo "✅ Cluster $(CLUSTER_NAME) created successfully with custom config"
+
+# Health check for kind module
+kind-health:
+	@echo "kind-module-ok"

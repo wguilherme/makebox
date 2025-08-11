@@ -1,5 +1,5 @@
 # Health check and test commands
-.PHONY: healthcheck test-setup validate-install doctor _show-health-commands
+.PHONY: healthcheck test-setup validate-install doctor health-health _show-health-commands
 
 # Help section for health/testing commands
 _show-health-commands:
@@ -139,9 +139,9 @@ _test-sample-commands:
 	fi
 	@echo "  📋 Testing module inclusion:"
 	@modules_loaded=0; \
-	total_modules=6; \
-	for module in docker git dev utils kind health; do \
-		if make -f $(MAIN_MAKEFILE) help 2>/dev/null | grep -q "$$module"; then \
+	total_modules=3; \
+	for module in utils kind health; do \
+		if make -f $(MAIN_MAKEFILE) $$module-health >/dev/null 2>&1; then \
 			modules_loaded=$$((modules_loaded + 1)); \
 		fi; \
 	done; \
@@ -193,3 +193,7 @@ install-help:
 	@echo "6. See all available commands:"
 	@echo "   gmake help"
 	@echo ""
+
+# Health check for healthcheck module
+health-health:
+	@echo "health-module-ok"

@@ -7,7 +7,7 @@ MakeBox is a collection of portable Makefiles designed to streamline your develo
 ## ✨ Features
 
 - **Global Commands**: Run commands from anywhere in your system
-- **Modular Structure**: Organized by categories (Docker, Git, Development, Utilities)
+- **Modular Structure**: Organized by categories (Utilities, Kind/Kubernetes, Health & Testing)
 - **Non-invasive**: Works alongside your existing project Makefiles
 - **Extensible**: Easy to add your own custom commands
 - **Version Controlled**: Keep your commands synchronized across machines
@@ -53,24 +53,20 @@ Run any command from anywhere in your system:
 # Show all available commands
 gmake help
 
-# Docker commands
-gmake docker-clean       # Clean containers and images
-gmake docker-stats       # Show container statistics
-gmake docker-logs        # View container logs
-
-# Git commands
-gmake git-status-all     # Check status of all repositories
-gmake git-pull-all       # Pull updates for all repositories
-gmake git-cleanup        # Clean merged branches
-
-# Development commands
-gmake dev-setup          # Setup development environment
-gmake dev-update         # Update development tools
-
-# Utilities
-gmake ports              # Show listening ports
+# Utility commands
 gmake clean-ds           # Clean .DS_Store files (macOS)
-gmake flush-dns         # Flush DNS cache
+gmake clean-node         # Remove node_modules directories
+gmake system-info        # Show system information
+gmake check-port PORT=8080  # Check what process is using a port
+
+# Kind (Kubernetes) commands
+gmake kind-list          # List all kind clusters
+gmake kind-export-kubeconfig CLUSTER_NAME=my-cluster  # Export kubeconfig
+gmake kind-create CLUSTER_NAME=dev  # Create new cluster
+
+# Health & Testing
+gmake healthcheck        # Complete health check
+gmake quick-test         # Quick installation test
 ```
 
 ## 📁 Project Structure
@@ -80,11 +76,13 @@ makebox/
 ├── README.md                   # This file
 ├── Makefile                    # Main Makefile that includes all modules
 ├── makefiles/                  # Modular command files
-│   ├── docker.mk              # Docker-related commands
-│   ├── git.mk                 # Git utilities
-│   ├── development.mk         # Development environment setup
-│   └── utils.mk               # General utilities
-├── scripts/                    # Helper scripts (if needed)
+│   ├── utils.mk               # General utilities and system commands
+│   ├── kind.mk                # Kubernetes Kind cluster management
+│   └── healthcheck.mk         # Health checks and testing
+├── scripts/                    # Helper scripts
+│   ├── dev-env-validator.sh   # Development environment validation
+│   ├── docker-cleanup.sh      # Advanced Docker cleanup
+│   └── git-repo-health.sh     # Git repository health checker
 └── .env.example               # Example environment variables
 ```
 
@@ -99,8 +97,7 @@ cp .env.example .env
 ```
 
 Available variables:
-- `PROJECTS_DIR`: Directory where your Git projects are located (default: `~/git`)
-- `DOCKER_CLEANUP_DAYS`: Days to keep Docker images (default: 7)
+- `PROJECTS_DIR`: Directory where your projects are located (default: `~/git`)
 
 ### Adding Custom Commands
 
@@ -123,29 +120,28 @@ include makefiles/custom.mk
 
 ## 🎯 Command Categories
 
-### 🐳 Docker
-- `docker-clean` - Remove unused containers, networks, and images
-- `docker-stats` - Display resource usage statistics
-- `docker-logs` - Show logs from running containers
-- `docker-stop-all` - Stop all running containers
-
-### 🌿 Git
-- `git-status-all` - Check status of all Git repositories
-- `git-pull-all` - Pull latest changes for all repositories
-- `git-cleanup` - Remove merged branches
-- `git-prune` - Clean up remote-tracking references
-
-### 💻 Development
-- `dev-setup` - Install/update development tools
-- `dev-update` - Update package managers and tools
-- `dev-doctor` - Check development environment health
-
 ### 🔧 Utilities
-- `ports` - List all listening ports
 - `clean-ds` - Remove .DS_Store files (macOS)
-- `clean-node` - Remove node_modules directories
+- `clean-node` - Remove node_modules directories  
+- `clean-python` - Remove Python cache files
+- `system-info` - Show comprehensive system information
+- `network-info` - Show network information and connectivity
+- `check-port` - Check what process is using a specific port
 - `flush-dns` - Clear DNS cache
 - `backup-dotfiles` - Backup configuration files
+
+### ☸️ Kind (Kubernetes)
+- `kind-create` - Create a new kind cluster
+- `kind-delete` - Delete a kind cluster
+- `kind-list` - List all kind clusters
+- `kind-export-kubeconfig` - Export kubeconfig for a cluster
+- `kind-load-image` - Load Docker image into cluster
+- `kind-status` - Show status of all kind clusters
+
+### 🏥 Health & Testing
+- `healthcheck` - Complete health check and validation
+- `quick-test` - Quick installation test
+- `install-help` - Show installation instructions
 
 ## 🤝 Contributing
 
