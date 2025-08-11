@@ -18,11 +18,11 @@ healthcheck:
 	@echo "🏥 MakeBox Health Check"
 	@echo "======================="
 	@echo ""
-	@$(MAKE) -f $(firstword $(MAKEFILE_LIST)) _check-makebox-setup
-	@$(MAKE) -f $(firstword $(MAKEFILE_LIST)) _check-alias
-	@$(MAKE) -f $(firstword $(MAKEFILE_LIST)) _check-dependencies
-	@$(MAKE) -f $(firstword $(MAKEFILE_LIST)) _check-permissions
-	@$(MAKE) -f $(firstword $(MAKEFILE_LIST)) _test-sample-commands
+	@$(MAKE) -f $(MAIN_MAKEFILE) _check-makebox-setup
+	@$(MAKE) -f $(MAIN_MAKEFILE) _check-alias
+	@$(MAKE) -f $(MAIN_MAKEFILE) _check-dependencies
+	@$(MAKE) -f $(MAIN_MAKEFILE) _check-permissions
+	@$(MAKE) -f $(MAIN_MAKEFILE) _test-sample-commands
 	@echo ""
 	@echo "✅ Health check completed!"
 	@echo "💡 Run 'gmake help' to see all available commands"
@@ -35,22 +35,22 @@ doctor: healthcheck
 # Internal: Check if MakeBox files are accessible
 _check-makebox-setup:
 	@echo "📁 Checking MakeBox installation..."
-	@if [ -f "$(firstword $(MAKEFILE_LIST))" ]; then \
-		echo "  ✅ Main Makefile found: $(firstword $(MAKEFILE_LIST))"; \
+	@if [ -f "$(MAIN_MAKEFILE)" ]; then \
+		echo "  ✅ Main Makefile found: $(MAIN_MAKEFILE)"; \
 	else \
 		echo "  ❌ Main Makefile not found"; \
 		exit 1; \
 	fi
-	@if [ -d "makefiles" ]; then \
+	@if [ -d "$(MAKEFILE_DIR)makefiles" ]; then \
 		echo "  ✅ Makefiles directory exists"; \
-		echo "  📋 Available modules: $$(ls makefiles/*.mk | wc -l) files"; \
+		echo "  📋 Available modules: $$(ls $(MAKEFILE_DIR)makefiles/*.mk | wc -l) files"; \
 	else \
 		echo "  ❌ Makefiles directory not found"; \
 		exit 1; \
 	fi
-	@if [ -d "scripts" ]; then \
+	@if [ -d "$(MAKEFILE_DIR)scripts" ]; then \
 		echo "  ✅ Scripts directory exists"; \
-		echo "  📜 Available scripts: $$(ls scripts/*.sh 2>/dev/null | wc -l) files"; \
+		echo "  📜 Available scripts: $$(ls $(MAKEFILE_DIR)scripts/*.sh 2>/dev/null | wc -l) files"; \
 	else \
 		echo "  ⚠️  Scripts directory not found (optional)"; \
 	fi
@@ -59,13 +59,17 @@ _check-makebox-setup:
 _check-alias:
 	@echo ""
 	@echo "🔗 Checking gmake alias..."
-	@if type gmake >/dev/null 2>&1; then \
-		echo "  ✅ gmake alias is working"; \
-		echo "  📍 gmake resolves to: $$(which gmake 2>/dev/null || echo 'alias')"; \
+	@if grep -q "alias gmake" ~/.zshrc 2>/dev/null; then \
+		echo "  ✅ gmake alias configured in ~/.zshrc"; \
+		if type gmake >/dev/null 2>&1; then \
+			echo "  ✅ gmake alias loaded in current shell"; \
+		else \
+			echo "  ⚠️  gmake alias found but not loaded - try: source ~/.zshrc"; \
+		fi; \
 	else \
-		echo "  ❌ gmake alias not found"; \
+		echo "  ❌ gmake alias not configured"; \
 		echo "  💡 Add this to your shell config:"; \
-		echo "     echo \"alias gmake='make -f $(firstword $(MAKEFILE_LIST))'\" >> ~/.zshrc"; \
+		echo "     echo \"alias gmake='make -f $(MAIN_MAKEFILE)'\" >> ~/.zshrc"; \
 		echo "     source ~/.zshrc"; \
 		exit 1; \
 	fi
@@ -121,15 +125,15 @@ _check-permissions:
 _test-sample-commands:
 	@echo ""
 	@echo "🧪 Testing sample commands..."
-	@echo "  📋 Testing 'gmake version':"
-	@if gmake version >/dev/null 2>&1; then \
+	@echo "  📋 Testing 'make version':"
+	@if make -f $(MAIN_MAKEFILE) version >/dev/null 2>&1; then \
 		echo "    ✅ version command works"; \
 	else \
 		echo "    ❌ version command failed"; \
 		exit 1; \
 	fi
-	@echo "  📋 Testing 'gmake help' (output suppressed):"
-	@if gmake help >/dev/null 2>&1; then \
+	@echo "  📋 Testing 'make help' (output suppressed):"
+	@if make -f $(MAIN_MAKEFILE) help >/dev/null 2>&1; then \
 		echo "    ✅ help command works"; \
 	else \
 		echo "    ❌ help command failed"; \
@@ -138,7 +142,7 @@ _test-sample-commands:
 	@echo "  📋 Testing module inclusion:"
 	@modules_loaded=0; \
 	for module in docker git development utils kind; do \
-		if gmake help 2>/dev/null | grep -q "$$module-"; then \
+		if make -f $(MAIN_MAKEFILE) help 2>/dev/null | grep -q "$$module-"; then \
 			modules_loaded=$$((modules_loaded + 1)); \
 		fi; \
 	done; \
@@ -156,7 +160,7 @@ quick-test:
 		else \
 			echo "⚠️  gmake alias found but not loaded - try: source ~/.zshrc"; \
 		fi; \
-		echo "📋 Available commands: $$(make -f $(firstword $(MAKEFILE_LIST)) help 2>/dev/null | grep -c '^     [a-z]' || echo 'unknown')"; \
+		echo "📋 Available commands: $$(make -f $(MAIN_MAKEFILE) help 2>/dev/null | grep -c '^     [a-z]' || echo 'unknown')"; \
 		echo ""; \
 		echo "🎉 MakeBox is ready to use!"; \
 		echo "💡 Run 'gmake help' to see all available commands"; \
@@ -165,7 +169,7 @@ quick-test:
 		echo "❌ gmake alias not configured"; \
 		echo ""; \
 		echo "🔧 Setup required:"; \
-		echo "1. Add alias: echo \"alias gmake='make -f $(firstword $(MAKEFILE_LIST))'\" >> ~/.zshrc"; \
+		echo "1. Add alias: echo \"alias gmake='make -f $(MAIN_MAKEFILE)'\" >> ~/.zshrc"; \
 		echo "2. Reload shell: source ~/.zshrc"; \
 		echo "3. Test again: gmake quick-test"; \
 	fi

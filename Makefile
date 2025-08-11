@@ -11,12 +11,14 @@ SHELL := /bin/bash
 PROJECTS_DIR ?= $(HOME)/git
 DOCKER_CLEANUP_DAYS ?= 7
 
-# Get the directory of this Makefile
+# Get the directory of this Makefile  
 MAKEFILE_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
+# Main Makefile path (use absolute path of this file)
+MAIN_MAKEFILE := $(abspath $(lastword $(MAKEFILE_LIST)))
 
 # Dynamically include all .mk files from the makefiles directory
-MAKEFILES := $(wildcard $(MAKEFILE_DIR)makefiles/*.mk)
-include $(MAKEFILES)
+MK_FILES := $(wildcard $(MAKEFILE_DIR)makefiles/*.mk)
+include $(MK_FILES)
 
 # Default target
 .DEFAULT_GOAL := help
@@ -28,13 +30,13 @@ help:
 	@echo "  📦 MakeBox - Global Makefiles Toolkit"
 	@echo "  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 	@echo ""
-	@$(MAKE) -f $(firstword $(MAKEFILE_LIST)) _show-docker-commands 2>/dev/null || true
-	@$(MAKE) -f $(firstword $(MAKEFILE_LIST)) _show-git-commands 2>/dev/null || true  
-	@$(MAKE) -f $(firstword $(MAKEFILE_LIST)) _show-dev-commands 2>/dev/null || true
-	@$(MAKE) -f $(firstword $(MAKEFILE_LIST)) _show-utils-commands 2>/dev/null || true
-	@$(MAKE) -f $(firstword $(MAKEFILE_LIST)) _show-kind-commands 2>/dev/null || true
-	@$(MAKE) -f $(firstword $(MAKEFILE_LIST)) _show-health-commands 2>/dev/null || true
-	@$(MAKE) -f $(firstword $(MAKEFILE_LIST)) _show-scripts 2>/dev/null || true
+	@$(MAKE) -f $(MAIN_MAKEFILE) _show-docker-commands 2>/dev/null || true
+	@$(MAKE) -f $(MAIN_MAKEFILE) _show-git-commands 2>/dev/null || true  
+	@$(MAKE) -f $(MAIN_MAKEFILE) _show-dev-commands 2>/dev/null || true
+	@$(MAKE) -f $(MAIN_MAKEFILE) _show-utils-commands 2>/dev/null || true
+	@$(MAKE) -f $(MAIN_MAKEFILE) _show-kind-commands 2>/dev/null || true
+	@$(MAKE) -f $(MAIN_MAKEFILE) _show-health-commands 2>/dev/null || true
+	@$(MAKE) -f $(MAIN_MAKEFILE) _show-scripts 2>/dev/null || true
 	@echo "  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 	@echo "  Usage: gmake <command>"
 	@echo "  Environment: PROJECTS_DIR=$(PROJECTS_DIR)"
